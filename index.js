@@ -18,7 +18,7 @@ function getData() {
 }
 
 function importData(data) {
-    console.log("this is my data: ", data)
+    // console.log("this is my data: ", data)
     const stateData = [...data]
     state.rawData = stateData
     console.log((state))
@@ -72,21 +72,25 @@ function createStateCard(chosenState) {
 function createAllCard(whichDataToShow) {
     const breweriesList = document.querySelector(".breweries-list")
     breweriesList.innerHTML = ""
-    for (let i = 0; i < state.rawData.length; i++) {
-        createStateCard(state[whichDataToShow][i])
+    console.log(whichDataToShow)
+    for (let i = 0; i < whichDataToShow.length; i++) {
+
+        createStateCard(whichDataToShow[i])
     }
 }
 
 function cardDataCreationDefault() {
+    addFilterByType()
     filterDefaultData()
-    console.log("Inside dataAndCreation, This is my state", (state.rawData))
-    console.log("Inside dataAndCreation, This is my filtered data", state.filteredData)
-    console.log("Inside dataAndCreation, This is my default data", state.defaultData)
-    createAllCard("defaultData")
+    // console.log("Inside dataAndCreation, This is my state", (state.rawData))
+    // console.log("Inside dataAndCreation, This is my filtered data", state.filteredData)
+    // console.log("Inside dataAndCreation, This is my default data", state.defaultData)
+    createAllCard(state.defaultData)
+    
 }
 
 function filterDefaultData() {
-    for (i=0; i < state.rawData.length; i++) {
+    for (i = 0; i < state.rawData.length; i++) {
         if (state.rawData[i].brewery_type.includes("micro")) {
             state.defaultData.push(state.rawData[i])
         } else if (state.rawData[i].brewery_type.includes("brewpub")) {
@@ -98,9 +102,9 @@ function filterDefaultData() {
 }
 
 function filterData(dataType, filterCategory, keyword) {
-    console.log("filterData: " + keyword)
+    // console.log("filterData: " + keyword)
     const newFilteredData = state.rawData.filter(
-        newData => newData[filterCategory] === keyword )
+        newData => newData[filterCategory] === keyword)
     state[dataType] = [...newFilteredData]
     console.log(state[dataType])
 }
@@ -111,21 +115,21 @@ function clearAllCardAndState() {
 
 
 function searchBar() {
-  var input, filter, ul, li, breweryName, i, txtValue;
-  input = document.getElementById('search-breweries')
-  filter = input.value.toUpperCase()
-  ul = document.getElementById("breweries-list")
-  li = ul.getElementsByTagName('li')
+    var input, filter, ul, li, breweryName, i, txtValue;
+    input = document.getElementById('search-breweries')
+    filter = input.value.toUpperCase()
+    ul = document.getElementById("breweries-list")
+    li = ul.getElementsByTagName('li')
 
-  for (i = 0; i < li.length; i++) {
-    breweryName = li[i].getElementsByTagName("h2")[0]
-    txtValue = breweryName.textContent || breweryName.innerText
-    if (txtValue.toUpperCase().indexOf(filter) > -1) {
-      li[i].style.display = ""
-    } else {
-      li[i].style.display = "none"
+    for (i = 0; i < li.length; i++) {
+        breweryName = li[i].getElementsByTagName("h2")[0]
+        txtValue = breweryName.textContent || breweryName.innerText
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            li[i].style.display = ""
+        } else {
+            li[i].style.display = "none"
+        }
     }
-  }
 }
 
 function addFunctionToSearchBar() {
@@ -133,6 +137,21 @@ function addFunctionToSearchBar() {
     searchBar.setAttribute("onkeyup", "searchBar()")
 }
 
+
+function filterByType() {
+    const filterType = document.getElementById('filter-by-type')
+    filterData("filteredData", "brewery_type", filterType.value)
+    console.log("inside infliterByType, filteredData is ", state.filteredData)
+    // clearAllCardAndState()
+    createAllCard(state.filteredData)
+
+}
+
+function addFilterByType() {
+    // filter-by-type-form
+    const filterType = document.getElementById('filter-by-type')
+    filterType.setAttribute("onchange", "filterByType()")
+}
 
 function init() {
     getData()
