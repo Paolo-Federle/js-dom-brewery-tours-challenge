@@ -81,10 +81,12 @@ function createAllCard(whichDataToShow) {
 
 function cardDataCreationDefault() {
     addFilterByType()
+    console.log("now I filter stuff")
     filterDefaultData()
     // console.log("Inside dataAndCreation, This is my state", (state.rawData))
     // console.log("Inside dataAndCreation, This is my filtered data", state.filteredData)
     // console.log("Inside dataAndCreation, This is my default data", state.defaultData)
+    console.log("this is my defaultdata: ", state.defaultData)
     createAllCard(state.defaultData)
     
 }
@@ -140,11 +142,15 @@ function addFunctionToSearchBar() {
 
 function filterByType() {
     const filterType = document.getElementById('filter-by-type')
+    if (filterType.value != "") {
+    console.log("filtertype is ", filterType.value)
     filterData("filteredData", "brewery_type", filterType.value)
     console.log("inside infliterByType, filteredData is ", state.filteredData)
     // clearAllCardAndState()
     createAllCard(state.filteredData)
-
+    } else (
+        cardDataCreationDefault()
+    )
 }
 
 function addFilterByType() {
