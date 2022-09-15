@@ -1,7 +1,9 @@
 const state = {
     rawData: [],
     defaultData: [],
-    filteredData: []
+    filteredData: [],
+    displayedData: [],
+    cities: []
 }
 
 function getData() {
@@ -44,8 +46,14 @@ function createStateCard(chosenState) {
     const elementAddressCity = document.createElement("p")
     const elementAddressCityStrong = document.createElement("strong")
     elementAddressCityStrong.innerText = `${chosenState.city}, ${chosenState.postal_code}`
+
+    const elementAddressState = document.createElement("p")
+    const elementAddressStateStrong = document.createElement("strong")
+    elementAddressStateStrong.innerText = `${chosenState.state}`
+    elementAddressState.append(elementAddressStateStrong)
+
     elementAddressCity.append(elementAddressCityStrong)
-    elementSectionAddress.append(elementH3Address, elementAddressRoad, elementAddressCity)
+    elementSectionAddress.append(elementH3Address, elementAddressRoad, elementAddressCity, elementAddressState)
 
     const elementSectionPhone = document.createElement("section")
     elementSectionPhone.setAttribute("class", "phone")
@@ -65,30 +73,40 @@ function createStateCard(chosenState) {
     elementSectionLink.append(elementALink)
 
     elementLi.append(elementSectionAddress, elementSectionPhone, elementSectionLink)
-    // elementLi.append(elementSectionAddress, elementSectionPhone, elementSectionLink)
     breweriesList.append(elementLi)
 }
 
 function createAllCard(whichDataToShow) {
+    state.displayedData = [...whichDataToShow]
+    clearCityCard()
+    // console.log(whichDataToShow)
+    createAllStateCard(whichDataToShow)
+    createAllCityCard(whichDataToShow)
+}
+
+function createAllStateCard(whichDataToShow) {
     const breweriesList = document.querySelector(".breweries-list")
     breweriesList.innerHTML = ""
-    console.log(whichDataToShow)
     for (let i = 0; i < whichDataToShow.length; i++) {
+        createStateCard(state.displayedData[i])
+    }
+}
 
-        createStateCard(whichDataToShow[i])
+function createAllCityCard(whichDataToShow) {
+    for (let i = 0; i < whichDataToShow.length; i++) {
+        createCityCard(state.displayedData[i])
     }
 }
 
 function cardDataCreationDefault() {
     addFilterByType()
-    console.log("now I filter stuff")
+    state.defaultData = []
     filterDefaultData()
-    // console.log("Inside dataAndCreation, This is my state", (state.rawData))
-    // console.log("Inside dataAndCreation, This is my filtered data", state.filteredData)
-    // console.log("Inside dataAndCreation, This is my default data", state.defaultData)
     console.log("this is my defaultdata: ", state.defaultData)
+    clearCityCard()
     createAllCard(state.defaultData)
-    
+    console.log("this is my displayedData: ", state.displayedData)
+
 }
 
 function filterDefaultData() {
@@ -108,7 +126,6 @@ function filterData(dataType, filterCategory, keyword) {
     const newFilteredData = state.rawData.filter(
         newData => newData[filterCategory] === keyword)
     state[dataType] = [...newFilteredData]
-    console.log(state[dataType])
 }
 
 function clearAllCardAndState() {
@@ -116,16 +133,114 @@ function clearAllCardAndState() {
 }
 
 
-function searchBar() {
-    var input, filter, ul, li, breweryName, i, txtValue;
+function searchBarByName() {
+    var input, filter, ul, li, breweryName, i, txtValue, cityForm, cityInput, cityLabel;
     input = document.getElementById('search-breweries')
     filter = input.value.toUpperCase()
     ul = document.getElementById("breweries-list")
     li = ul.getElementsByTagName('li')
+    cityForm = document.getElementById("filter-by-city-form")
+    // cityInput = cityForm.getElementsByTagName('input')
+    // cityLabel = document.getElementsByTagName('label')
 
     for (i = 0; i < li.length; i++) {
         breweryName = li[i].getElementsByTagName("h2")[0]
+        cityInput = cityForm.getElementsByTagName('input')[i]
+        cityLabel = cityForm.getElementsByTagName('label')[i]
         txtValue = breweryName.textContent || breweryName.innerText
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            li[i].style.display = ""
+            cityInput.style.display = ""
+            cityLabel.style.display = ""
+        } else {
+            li[i].style.display = "none"
+            cityInput.style.display = "none"
+            cityLabel.style.display = "none"
+        }
+    }
+}
+
+function eventSearchBarByName() {
+    const searchBar = document.getElementById('search-breweries')
+    searchBar.setAttribute("onkeyup", "searchBarByName()")
+}
+
+function eventSearchBarState() {
+    const searchBarButton = document.getElementById('select-state-form').getElementsByTagName("input")[1]
+    searchBarButton.addEventListener("click", event => searchBarState(event))
+}
+
+function searchBarState(event) {
+    var input, filter, ul, li, breweryState, i, txtValue, cityForm, cityInput, cityLabel;
+    event.preventDefault()
+    input = document.getElementById('select-state')
+    filter = input.value.toUpperCase()
+    ul = document.getElementById("breweries-list")
+    li = ul.getElementsByTagName('li')
+    cityForm = document.getElementById("filter-by-city-form")
+
+    for (i = 0; i < li.length; i++) {
+        breweryState = li[i].getElementsByTagName("p")[2]
+        cityInput = cityForm.getElementsByTagName('input')[i]
+        cityLabel = cityForm.getElementsByTagName('label')[i]
+        txtValue = breweryState.textContent || breweryState.innerText
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            li[i].style.display = ""
+            cityInput.style.display = ""
+            cityLabel.style.display = ""
+        } else {
+            li[i].style.display = "none"
+            cityInput.style.display = "none"
+            cityLabel.style.display = "none"
+        }
+    }
+}
+
+
+function filterByType() {
+    const filterType = document.getElementById('filter-by-type')
+    if (filterType.value != "") {
+        filterData("filteredData", "brewery_type", filterType.value)
+        createAllCard(state.filteredData)
+    } else (
+        cardDataCreationDefault()
+    )
+}
+
+function addFilterByType() {
+    const filterType = document.getElementById('filter-by-type')
+    filterType.setAttribute("onchange", "filterByType()")
+}
+
+function clearCityCard() {
+    cityForm = document.getElementById('filter-by-city-form')
+    cityForm.innerHTML = ""
+}
+
+function createCityCard(chosenState) {
+    const cityForm = document.getElementById("filter-by-city-form")
+
+    const cityInput = document.createElement("input")
+    cityInput.setAttribute("type", "checkbox")
+    cityInput.setAttribute("name", `${chosenState.city}`)
+    cityInput.setAttribute("value", `${chosenState.city}`)
+    cityInput.addEventListener("click", () => checkboxCity(cityInput))
+
+    const cityLabel = document.createElement("label")
+    cityLabel.innerText = `${chosenState.city}`
+    cityLabel.setAttribute("for", `${chosenState.city}`)
+    cityForm.append(cityInput, cityLabel)
+}
+
+function hideAndShowCard(cityInput) {
+    var filter, ul, li, breweryName, i, txtValue, cityForm, cityInput;
+    filter = cityInput.name.toUpperCase()
+    ul = document.getElementById("breweries-list")
+    li = ul.getElementsByTagName('li')
+    cityForm = document.getElementById("filter-by-city-form")
+    for (i = 0; i < li.length; i++) {
+        breweryName = li[i].getElementsByTagName("p")[1]
+        txtValue = breweryName.textContent.substr(0, breweryName.textContent.indexOf(',')) || breweryName.innerText.substr(0, breweryName.innerText.indexOf(','))
         if (txtValue.toUpperCase().indexOf(filter) > -1) {
             li[i].style.display = ""
         } else {
@@ -134,34 +249,108 @@ function searchBar() {
     }
 }
 
-function addFunctionToSearchBar() {
-    const searchBar = document.getElementById('search-breweries')
-    searchBar.setAttribute("onkeyup", "searchBar()")
+function showOneMoreCard(cityInput) {
+    var filter, ul, li, breweryName, i, txtValue, cityForm, cityInput;
+    filter = cityInput.name.toUpperCase()
+    // console.log(filter)
+    ul = document.getElementById("breweries-list")
+    li = ul.getElementsByTagName('li')
+    cityForm = document.getElementById("filter-by-city-form")
+    // console.log("I'll show another card")
+    for (i = 0; i < li.length; i++) {
+        breweryName = li[i].getElementsByTagName("p")[1]
+        txtValue = breweryName.textContent.substr(0, breweryName.textContent.indexOf(',')) || breweryName.innerText.substr(0, breweryName.innerText.indexOf(','))
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            li[i].style.display = ""
+        }
+    }
 }
 
 
-function filterByType() {
-    const filterType = document.getElementById('filter-by-type')
-    if (filterType.value != "") {
-    console.log("filtertype is ", filterType.value)
-    filterData("filteredData", "brewery_type", filterType.value)
-    console.log("inside infliterByType, filteredData is ", state.filteredData)
-    // clearAllCardAndState()
-    createAllCard(state.filteredData)
-    } else (
-        cardDataCreationDefault()
-    )
+
+function filterCityCheckbox(cityInput) {
+    if (state.cities.length < 1) {
+        // const newFilteredData = state.rawData.filter(
+        // newData => newData.city === cityInput.name)
+        // state.displayedData = [...newFilteredData]
+        // // filterData("displayedData", "city", cityInput.name)
+        // console.log("this is my displayedData: ", state.displayedData)
+        // console.log(state.displayedData.length)
+        // createAllStateCard(state.displayedData)
+        state.cities.push(cityInput.name)
+        hideAndShowCard(cityInput)
+    } else if (state.cities.length > 0) {
+        if (state.displayedData[0].name.includes(cityInput.name)) {
+        //     console.log("can't happen for now")
+        //     state.displayedData.push(state.rawData[0])
+        } else{
+            state.cities.push(cityInput.name)
+            console.log("new check")
+            showOneMoreCard(cityInput)
+        }
+    }
 }
 
-function addFilterByType() {
-    // filter-by-type-form
-    const filterType = document.getElementById('filter-by-type')
-    filterType.setAttribute("onchange", "filterByType()")
+function hideCard(cityInput) {
+    var filter, ul, li, breweryName, i, txtValue, cityForm, cityInput;
+    filter = cityInput.name.toUpperCase()
+    ul = document.getElementById("breweries-list")
+    li = ul.getElementsByTagName('li')
+    cityForm = document.getElementById("filter-by-city-form")
+    for (i = 0; i < li.length; i++) {
+        breweryName = li[i].getElementsByTagName("p")[1]
+        txtValue = breweryName.textContent.substr(0, breweryName.textContent.indexOf(',')) || breweryName.innerText.substr(0, breweryName.innerText.indexOf(','))
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            li[i].style.display = "none"
+        }
+    }
+}
+
+function showAllCard(cityInput) {
+    var filter, ul, li, breweryName, i, txtValue, cityForm, cityInput;
+    filter = cityInput.name.toUpperCase()
+    ul = document.getElementById("breweries-list")
+    li = ul.getElementsByTagName('li')
+    cityForm = document.getElementById("filter-by-city-form")
+    for (i = 0; i < li.length; i++) {
+        breweryName = li[i].getElementsByTagName("p")[1]
+        txtValue = breweryName.textContent.substr(0, breweryName.textContent.indexOf(',')) || breweryName.innerText.substr(0, breweryName.innerText.indexOf(','))
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            li[i].style.display = ""
+        } else {
+            li[i].style.display = ""
+        }
+    }
+}
+
+function filterCityRemoveCheckbox(cityInput){
+    if (state.cities.length === 1) {
+        console.log("showAllCard!!!")
+        showAllCard(cityInput)
+    }   else if (state.cities.length > 0){
+        hideCard(cityInput)
+        state.cities = state.cities.filter(function (e) {return e !== `${cityInput.name}`})
+        console.log(`My state.cities is: ${state.cities}`)
+    }
+
+}
+
+function checkboxCity(cityInput) {
+    if (cityInput.checked == true) {
+        console.log("check on for", cityInput.name)
+        filterCityCheckbox(cityInput)
+        console.log(`My state.cities is: ${state.cities}`)
+    } else {
+        console.log("check off for", cityInput.name)
+        filterCityRemoveCheckbox(cityInput)
+        console.log(`My state.cities is: ${state.cities}`)
+    }
 }
 
 function init() {
     getData()
-    addFunctionToSearchBar()
+    eventSearchBarByName()
+    eventSearchBarState()
 }
 
 init()
