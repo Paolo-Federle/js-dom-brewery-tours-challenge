@@ -266,7 +266,7 @@ function showOneMoreCard(cityInput) {
     }
 }
 
-
+// 
 
 function filterCityCheckbox(cityInput) {
     if (state.cities.length < 1) {
